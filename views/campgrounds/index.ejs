@@ -1,23 +1,19 @@
 <!DOCTYPE html>
 <html lang="en">
-
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Campgrounds</title>
-</head>
-
-<body>
-    <h1>All Campgrounds</h1>
-    <div>
-        <a href="/campgrounds/new">Add Campground</a>
-    </div>
-    <ul>
-        <% for (let campground of campgrounds){%>
-        <li><a href="/campgrounds/<%= campground._id %>"><%= campground.title %></a></li>
-        <% }%>
-    </ul>
-
-</body>
-
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+  </head>
+  <body>
+    <main>
+      <h1>All Campgrounds</h1>
+      <h3>Go and <a href="/campgrounds/new">Make a new Campground</a></h3>
+      <% for(let camp of campgrounds) { %>
+      <h2><a href="campgrounds/<%= camp._id %>"><%= camp.title %></a></h2>
+      <p><%= camp.location %></p>
+      <% } %>
+    </main>
+  </body>
 </html>
