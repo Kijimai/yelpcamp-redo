@@ -5,7 +5,8 @@ const ejsMate = require("ejs-mate")
 const methodOverride = require("method-override")
 const morgan = require("morgan")
 const Campground = require("./models/campground")
-const AppError = require("./AppError")
+const AppError = require("./utils/AppError")
+const wrapAsync = require("./utils/wrapAsync")
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
   useNewUrlParser: true,
@@ -43,12 +44,6 @@ const verifyPassword = (req, res, next) => {
   throw new AppError(401, "Password required!")
 }
 
-function wrapAsync(fn) {
-  return function (req, res, next) {
-    fn(req, res, next).catch((err) => next(err))
-  }
-}
-
 app.get("/", (req, res) => {
   res.render("home")
 })
@@ -80,6 +75,9 @@ app.get("/campgrounds/new", (req, res) => {
 app.post(
   "/campgrounds",
   wrapAsync(async (req, res, next) => {
+    if (!req.body.campground) {
+      throw new AppError(400, "Invalid Campground Data, Check your inputs")
+    }
     const campground = new Campground(req.body.campground)
     await campground.save()
     res.redirect(`/campgrounds/${campground._id}`)
@@ -127,15 +125,22 @@ const handleValidationErr = (err) => {
   return new AppError(400, "Validation failed...")
 }
 
+//Error Handler
 app.use((err, req, res, next) => {
   console.log(err.name)
   if (err.name === "ValidationError") err = handleValidationErr(err)
   next(err)
 })
 
+app.all("*", (req, res, next) => {
+  next(new AppError(404, "Page Not Found!"))
+})
+
+//Catch-all error handler
 app.use((err, req, res, next) => {
-  const { status = 500, message = "Something went wrong :(" } = err
-  res.status(status).send(message)
+  const { statusCode = 500 } = err
+  if (!err.message) err.message = "Something has gone terribly wrong! :("
+  res.status(statusCode).render("error", { err })
 })
 
 app.listen(3000, () => {
