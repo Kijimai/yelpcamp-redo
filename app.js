@@ -1,6 +1,7 @@
 const express = require("express")
 const path = require("path")
 const mongoose = require("mongoose")
+const ejsMate = require("ejs-mate")
 const methodOverride = require("method-override")
 const morgan = require("morgan")
 const Campground = require("./models/campground")
@@ -19,6 +20,7 @@ db.once("open", () => {
 
 const app = express()
 
+app.engine("ejs", ejsMate)
 app.set("view engine", "ejs")
 app.set("views", path.join(__dirname, "views"))
 
@@ -26,7 +28,10 @@ app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride("_method"))
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
 
-
+app.use((req, res, next) => {
+  console.log(req.method, req.path)
+  next()
+})
 
 app.get("/", (req, res) => {
   res.render("home")
@@ -44,7 +49,7 @@ app.get("/campgrounds/new", (req, res) => {
 app.post("/campgrounds", async (req, res) => {
   const campground = new Campground(req.body.campground)
   await campground.save()
-  res.redirect("/campgrounds")
+  res.redirect(`/campgrounds/${campground._id}`)
 })
 
 app.get("/campgrounds/:id", async (req, res) => {
@@ -62,13 +67,17 @@ app.put("/campgrounds/:id", async (req, res) => {
 
 app.delete("/campgrounds/:id", async (req, res) => {
   const { id } = req.params
-  const campground = await Campground.findByIdAndDelete(id)
+  await Campground.findByIdAndDelete(id)
   res.redirect("/campgrounds")
 })
 
 app.get("/campgrounds/:id/edit", async (req, res) => {
-  await Campground.findById(req.params.id)
+  const campground = await Campground.findById(req.params.id)
   res.render("campgrounds/edit", { campground })
+})
+
+app.use((req, res) => {
+  res.render("error")
 })
 
 app.listen(3000, () => {
