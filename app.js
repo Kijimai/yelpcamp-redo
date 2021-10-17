@@ -4,9 +4,10 @@ const mongoose = require("mongoose")
 const ejsMate = require("ejs-mate")
 const methodOverride = require("method-override")
 const Joi = require("joi")
-const { campgroundSchema } = require("./schemaValidator.js")
+const { campgroundSchema, reviewSchema } = require("./schemaValidator.js")
 const morgan = require("morgan")
 const Campground = require("./models/campground")
+const Review = require("./models/review")
 const AppError = require("./utils/AppError")
 const wrapAsync = require("./utils/wrapAsync")
 
@@ -34,6 +35,16 @@ app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
 
 const validateCampground = (req, res, next) => {
   const { error } = campgroundSchema.validate(req.body)
+  if (error) {
+    const errMsg = error.details.map((detail) => detail.message).join(",")
+    throw new AppError(400, errMsg)
+  } else {
+    next()
+  }
+}
+
+const validateReview = (req, res, next) => {
+  const { error } = reviewSchema.validate(req.body)
   if (error) {
     const errMsg = error.details.map((detail) => detail.message).join(",")
     throw new AppError(400, errMsg)
@@ -97,8 +108,11 @@ app.post(
 app.get(
   "/campgrounds/:id",
   wrapAsync(async (req, res, next) => {
-    const campground = await Campground.findById(req.params.id)
-    res.render("campgrounds/show", { campground })
+    const campground = await Campground.findById(req.params.id).populate(
+      "reviews"
+    )
+    const reviews = campground.reviews
+    res.render("campgrounds/show", { campground, reviews })
   })
 )
 
@@ -128,6 +142,21 @@ app.delete(
     const { id } = req.params
     await Campground.findByIdAndDelete(id)
     res.redirect("/campgrounds")
+  })
+)
+
+app.post(
+  "/campgrounds/:id/reviews",
+  validateReview,
+  wrapAsync(async (req, res) => {
+    const { id } = req.params
+    const campground = await Campground.findById(id)
+    const review = new Review(req.body.review)
+    campground.reviews.push(review)
+    await review.save()
+    await campground.save()
+    console.log(campground)
+    res.redirect(`/campgrounds/${campground._id}`)
   })
 )
 
