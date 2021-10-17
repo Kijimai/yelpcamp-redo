@@ -3,6 +3,8 @@ const path = require("path")
 const mongoose = require("mongoose")
 const ejsMate = require("ejs-mate")
 const methodOverride = require("method-override")
+const Joi = require("joi")
+const { campgroundSchema } = require("./schemaValidator.js")
 const morgan = require("morgan")
 const Campground = require("./models/campground")
 const AppError = require("./utils/AppError")
@@ -29,6 +31,16 @@ app.set("views", path.join(__dirname, "views"))
 app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride("_method"))
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
+
+const validateCampground = (req, res, next) => {
+  const { error } = campgroundSchema.validate(req.body)
+  if (error) {
+    const errMsg = error.details.map((detail) => detail.message).join(",")
+    throw new AppError(400, errMsg)
+  } else {
+    next()
+  }
+}
 
 app.use((req, res, next) => {
   console.log(req.method, req.path)
@@ -74,10 +86,8 @@ app.get("/campgrounds/new", (req, res) => {
 
 app.post(
   "/campgrounds",
+  validateCampground,
   wrapAsync(async (req, res, next) => {
-    if (!req.body.campground) {
-      throw new AppError(400, "Invalid Campground Data, Check your inputs")
-    }
     const campground = new Campground(req.body.campground)
     await campground.save()
     res.redirect(`/campgrounds/${campground._id}`)
@@ -94,6 +104,7 @@ app.get(
 
 app.put(
   "/campgrounds/:id",
+  validateCampground,
   wrapAsync(async (req, res) => {
     const { id } = req.params
     const campground = await Campground.findByIdAndUpdate(id, {
