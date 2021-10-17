@@ -160,6 +160,18 @@ app.post(
   })
 )
 
+app.delete(
+  "/campgrounds/:id/reviews/:reviewId",
+  wrapAsync(async (req, res) => {
+    const { id, reviewId } = req.params
+    await Campground.findByIdAndUpdate(id, {
+      $pull: { reviews: reviewId },
+    })
+    const review = await Review.findByIdAndDelete(reviewId)
+    res.redirect(`/campgrounds/${id}`)
+  })
+)
+
 const handleValidationErr = (err) => {
   console.log(err)
   return new AppError(400, "Validation failed...")
