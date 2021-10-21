@@ -29,6 +29,7 @@ router.post(
     campground.reviews.push(review)
     await review.save()
     await campground.save()
+    req.flash("success", "Review successfully posted!")
     res.redirect(`/campgrounds/${campground._id}`)
   })
 )
@@ -41,6 +42,7 @@ router.delete(
       $pull: { reviews: reviewId },
     })
     await Review.findByIdAndDelete(reviewId)
+    req.flash("success", "The review has been removed successfully!")
     res.redirect(`/campgrounds/${id}`)
   })
 )

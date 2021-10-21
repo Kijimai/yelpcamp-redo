@@ -4,6 +4,8 @@ const mongoose = require("mongoose")
 const ejsMate = require("ejs-mate")
 const methodOverride = require("method-override")
 const morgan = require("morgan")
+const session = require("express-session")
+const flash = require("connect-flash")
 const AppError = require("./utils/AppError")
 //Campground Routes
 const campgroundsRouter = require("./routes/campgrounds")
@@ -13,6 +15,7 @@ mongoose.connect("mongodb://localhost:27017/yelp-camp", {
   useNewUrlParser: true,
   useCreateIndex: true,
   useUnifiedTopology: true,
+  useFindAndModify: false,
 })
 
 const db = mongoose.connection
@@ -31,6 +34,23 @@ app.use(express.urlencoded({ extended: true }))
 
 app.use(methodOverride("_method"))
 app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
+app.use(express.static(path.join(__dirname, "public")))
+
+const sessionConfig = {
+  //Temporary secret
+  secret: "thisismysecret",
+  resave: false,
+  saveUninitialized: true,
+  cookie: {
+    //expires 1 week after generation
+    expires: Date.now() + 1000 * 60 * 60 * 24 * 7,
+    maxAge: 1000 * 60 * 60 * 24 * 7,
+    httpOnly: true,
+  },
+}
+
+app.use(session(sessionConfig))
+app.use(flash())
 
 app.use((req, res, next) => {
   console.log(req.method, req.path)
@@ -45,6 +65,15 @@ const verifyPassword = (req, res, next) => {
   res.status(401)
   throw new AppError(401, "Password required!")
 }
+
+//place BEFORE all the route handlers
+app.use((req, res, next) => {
+  //store the flashed message to be accessible via the response's locals object
+  res.locals.success = req.flash("success")
+  res.locals.error = req.flash("error")
+  next()
+})
+
 // important to be placed just after the body parser and above the root route
 app.use("/campgrounds", campgroundsRouter)
 app.use("/campgrounds/:id/reviews", reviewsRouter)
