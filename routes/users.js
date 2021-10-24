@@ -15,9 +15,12 @@ router.post(
       const { username, email, password } = req.body
       const user = new User({ username, email })
       const registeredUser = await User.register(user, password)
-      console.log(registeredUser)
-      req.flash("success", "Welcome to Yelp Camp!")
-      res.redirect("/campgrounds")
+      // takes the newly registered user and logs them in
+      req.login(registeredUser, (err) => {
+        if (err) return next(err)
+        req.flash("success", "Welcome to Yelp Camp!")
+        res.redirect("/campgrounds")
+      })
     } catch (err) {
       req.flash("error", err.message)
       res.redirect("/register")
