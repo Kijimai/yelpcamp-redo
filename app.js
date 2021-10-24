@@ -39,7 +39,7 @@ app.set("views", path.join(__dirname, "views"))
 app.use(express.urlencoded({ extended: true }))
 
 app.use(methodOverride("_method"))
-app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
+// app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
 app.use(express.static(path.join(__dirname, "public")))
 
 const sessionConfig = {
@@ -91,6 +91,7 @@ const verifyPassword = (req, res, next) => {
 //place BEFORE all the route handlers
 app.use((req, res, next) => {
   //store the flashed message to be accessible via the response's locals object
+  console.log(req.session)
   res.locals.currentUser = req.user
   res.locals.success = req.flash("success")
   res.locals.error = req.flash("error")

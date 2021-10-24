@@ -40,7 +40,9 @@ router.post(
   }),
   (req, res) => {
     req.flash("success", "Welcome back!")
-    res.redirect("/campgrounds")
+    const redirectURL = req.session.returnTo || "/campgrounds"
+    delete req.session.returnTo //delete the returnTo route before redirecting
+    res.redirect(redirectURL)
   }
 )
 
