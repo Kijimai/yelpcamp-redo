@@ -6,6 +6,11 @@ const methodOverride = require("method-override")
 const morgan = require("morgan")
 const session = require("express-session")
 const flash = require("connect-flash")
+const passport = require("passport")
+const LocalStrategy = require("passport-local")
+const User = require("./models/user")
+
+//Custom Error middleware
 const AppError = require("./utils/AppError")
 //Campground Routes
 const campgroundsRouter = require("./routes/campgrounds")
@@ -52,6 +57,19 @@ const sessionConfig = {
 app.use(session(sessionConfig))
 app.use(flash())
 
+app.use(passport.initialize())
+
+// Must be used for persistent login session and make sure app.session is used before passport.session()
+app.use(passport.session())
+// Passport will utilize the Local Strategy and authenticate the User model created inside the user model -- Each model should user Passport if they need authentication.
+passport.use(new LocalStrategy(User.authenticate()))
+
+//serialization: how to store a user in this session
+passport.serializeUser(User.serializeUser())
+
+//how to deserialize the user - for logging out
+passport.deserializeUser(User.deserializeUser())
+
 app.use((req, res, next) => {
   console.log(req.method, req.path)
   next()
@@ -77,6 +95,13 @@ app.use((req, res, next) => {
 // important to be placed just after the body parser and above the root route
 app.use("/campgrounds", campgroundsRouter)
 app.use("/campgrounds/:id/reviews", reviewsRouter)
+
+app.get("/fakeUser", async (req, res) => {
+  const user = new User({ email: "Megaman@gmail.com", username: 'Megaman' })
+  //insert a user object, and then a password
+  const newUser = await User.register(user, "123")
+  res.send(newUser)
+})
 
 app.get("/", (req, res) => {
   res.render("home")
