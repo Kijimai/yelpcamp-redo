@@ -13,8 +13,15 @@
       </div>
       <ul class="list-group list-group-flush">
         <li class="list-group-item text-muted"><%= campground.location %></li>
+        <li class="list-group-item">
+          Submitted by: <%= campground.author.username %>
+        </li>
         <li class="list-group-item">$<%= campground.price %> / night</li>
       </ul>
+
+      <!-- Hides edit and Delete button if owner of post isnt signed in:  -->
+      <!-- Only works on client side, needs server side protection -->
+      <% if(currentUser && campground.author.equals(currentUser._id)) { %>
       <div class="card-body">
         <a class="btn btn-info" href="/campgrounds/<%=campground._id%>/edit"
           >Edit</a
@@ -27,6 +34,8 @@
           <button class="btn btn-danger">Delete</button>
         </form>
       </div>
+      <% } %>
+
       <div class="card-footer">
         <a href="/campgrounds">Back to Campgrounds</a>
       </div>

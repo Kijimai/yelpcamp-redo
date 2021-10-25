@@ -4,17 +4,9 @@ const wrapAsync = require("../utils/wrapAsync")
 const { campgroundSchema } = require("../schemaValidator.js")
 const Campground = require("../models/campground")
 const AppError = require("../utils/AppError")
-const { isLoggedIn } = require("../middleware")
+const { isLoggedIn, validateCampground, isVerifiedAuthor } = require("../middleware")
 
-const validateCampground = (req, res, next) => {
-  const { error } = campgroundSchema.validate(req.body)
-  if (error) {
-    const errMsg = error.details.map((detail) => detail.message).join(",")
-    throw new AppError(400, errMsg)
-  } else {
-    next()
-  }
-}
+
 
 router.get(
   "/",
@@ -34,6 +26,7 @@ router.post(
   validateCampground,
   wrapAsync(async (req, res, next) => {
     const campground = new Campground(req.body.campground)
+    campground.author = req.user._id
     await campground.save()
     req.flash("success", "Successfully created a new campground!")
     res.redirect(`/campgrounds/${campground._id}`)
@@ -43,9 +36,9 @@ router.post(
 router.get(
   "/:id",
   wrapAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id).populate(
-      "reviews"
-    )
+    const campground = await Campground.findById(req.params.id)
+      .populate("reviews")
+      .populate("author")
     if (!campground) {
       req.flash("error", "Campground was not found!")
       return res.redirect("/campgrounds")
@@ -58,8 +51,10 @@ router.get(
 router.get(
   "/:id/edit",
   isLoggedIn,
+  isVerifiedAuthor,
   wrapAsync(async (req, res) => {
-    const campground = await Campground.findById(req.params.id)
+    const { id } = req.params
+    const campground = await Campground.findById(id)
     if (!campground) {
       req.flash("error", `Could not find that campground!`)
       return res.redirect("/campgrounds")
@@ -70,6 +65,8 @@ router.get(
 
 router.put(
   "/:id",
+  isLoggedIn,
+  isVerifiedAuthor,
   validateCampground,
   wrapAsync(async (req, res) => {
     const { id } = req.params
@@ -83,8 +80,15 @@ router.put(
 
 router.delete(
   "/:id",
+  isLoggedIn,
+  isVerifiedAuthor,
   wrapAsync(async (req, res) => {
     const { id } = req.params
+    const campground = await Campground.findById(id)
+    if (!campground.author.equals(req.user._id)) {
+      req.flash("error", "You do not have permission to edit this campground.")
+      return res.redirect(`/campgrounds/${id}`)
+    }
     await Campground.findByIdAndDelete(id)
     req.flash("success", "The campground has been removed!")
     res.redirect("/campgrounds")

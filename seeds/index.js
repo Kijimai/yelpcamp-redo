@@ -27,6 +27,7 @@ const seedDB = async () => {
     const randomDescriptor = Math.floor(Math.random() * descriptors.length)
     const randomPrice = Math.floor(Math.random() * 50) + 20
     const newCamp = new Campground({
+      author: "6175d186a8aaff11388d44a3",
       location: `${cities[random1000].city}, ${cities[random1000].state}`,
       title: `${places[randomPlace]} ${descriptors[randomDescriptor]}`,
       image: `https://source.unsplash.com/collection/483251`,
@@ -37,5 +38,4 @@ const seedDB = async () => {
     await newCamp.save()
   }
 }
-
 seedDB().then(() => db.close())
