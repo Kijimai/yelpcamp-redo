@@ -2,7 +2,6 @@ const express = require("express")
 const router = express.Router()
 const wrapAsync = require("../utils/wrapAsync")
 // const { campgroundSchema } = require("../schemaValidator.js") currently unused
-const Campground = require("../models/campground")
 const campgroundsController = require("../controllers/campgrounds")
 
 const {
@@ -39,6 +38,11 @@ router.put(
   wrapAsync(campgroundsController.editCampground)
 )
 
-router.delete("/:id", isLoggedIn, isVerifiedAuthor, wrapAsync(campgroundsController.deleteCampground))
+router.delete(
+  "/:id",
+  isLoggedIn,
+  isVerifiedAuthor,
+  wrapAsync(campgroundsController.deleteCampground)
+)
 
 module.exports = router
