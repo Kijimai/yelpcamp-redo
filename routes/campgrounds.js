@@ -10,39 +10,38 @@ const {
   isVerifiedAuthor,
 } = require("../middleware")
 
-router.get("/", wrapAsync(campgroundsController.index))
+//using router.route to shorten paths and group together same routes
+router
+  .route("/")
+  .get(wrapAsync(campgroundsController.index))
+  .post(
+    isLoggedIn,
+    validateCampground,
+    wrapAsync(campgroundsController.createNewCampground)
+  )
 
 router.get("/new", isLoggedIn, campgroundsController.renderNewForm)
 
-router.post(
-  "/",
-  isLoggedIn,
-  validateCampground,
-  wrapAsync(campgroundsController.createNewCampground)
-)
-
-router.get("/:id", wrapAsync(campgroundsController.showCampground))
+router
+  .route("/:id")
+  .get(wrapAsync(campgroundsController.showCampground))
+  .put(
+    isLoggedIn,
+    isVerifiedAuthor,
+    validateCampground,
+    wrapAsync(campgroundsController.editCampground)
+  )
+  .delete(
+    isLoggedIn,
+    isVerifiedAuthor,
+    wrapAsync(campgroundsController.deleteCampground)
+  )
 
 router.get(
   "/:id/edit",
   isLoggedIn,
   isVerifiedAuthor,
   wrapAsync(campgroundsController.renderEditForm)
-)
-
-router.put(
-  "/:id",
-  isLoggedIn,
-  isVerifiedAuthor,
-  validateCampground,
-  wrapAsync(campgroundsController.editCampground)
-)
-
-router.delete(
-  "/:id",
-  isLoggedIn,
-  isVerifiedAuthor,
-  wrapAsync(campgroundsController.deleteCampground)
 )
 
 module.exports = router
