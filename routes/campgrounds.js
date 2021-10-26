@@ -4,9 +4,11 @@ const wrapAsync = require("../utils/wrapAsync")
 const { campgroundSchema } = require("../schemaValidator.js")
 const Campground = require("../models/campground")
 const AppError = require("../utils/AppError")
-const { isLoggedIn, validateCampground, isVerifiedAuthor } = require("../middleware")
-
-
+const {
+  isLoggedIn,
+  validateCampground,
+  isVerifiedAuthor,
+} = require("../middleware")
 
 router.get(
   "/",
@@ -37,8 +39,14 @@ router.get(
   "/:id",
   wrapAsync(async (req, res) => {
     const campground = await Campground.findById(req.params.id)
-      .populate("reviews")
+      .populate({
+        path: "reviews",
+        populate: {
+          path: "author",
+        },
+      })
       .populate("author")
+    console.log(campground)
     if (!campground) {
       req.flash("error", "Campground was not found!")
       return res.redirect("/campgrounds")
