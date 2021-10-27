@@ -4,7 +4,7 @@ const wrapAsync = require("../utils/wrapAsync")
 // const { campgroundSchema } = require("../schemaValidator.js") currently unused
 const campgroundsController = require("../controllers/campgrounds")
 const multer = require("multer")
-const { storage } = require("../cloudinary/index")
+const { storage } = require("../cloudinary")
 const upload = multer({ storage })
 
 const {
@@ -36,7 +36,7 @@ router
   .put(
     isLoggedIn,
     isVerifiedAuthor,
-    upload.array('image'),
+    upload.array("image"),
     validateCampground,
     wrapAsync(campgroundsController.editCampground)
   )
