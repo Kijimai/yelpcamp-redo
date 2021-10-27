@@ -36,6 +36,7 @@ router
   .put(
     isLoggedIn,
     isVerifiedAuthor,
+    upload.array('image'),
     validateCampground,
     wrapAsync(campgroundsController.editCampground)
   )
