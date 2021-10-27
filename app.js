@@ -1,3 +1,7 @@
+if (process.env.NODE_ENV !== "production") {
+  require("dotenv").config()
+}
+
 const express = require("express")
 const path = require("path")
 const mongoose = require("mongoose")
@@ -16,6 +20,8 @@ const AppError = require("./utils/AppError")
 const campgroundsRouter = require("./routes/campgrounds")
 const reviewsRouter = require("./routes/reviews")
 const usersRouter = require("./routes/users")
+
+
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
   useNewUrlParser: true,
@@ -75,7 +81,7 @@ passport.serializeUser(User.serializeUser())
 passport.deserializeUser(User.deserializeUser())
 
 app.use((req, res, next) => {
-  console.log(req.method, req.path)
+  // console.log(req.method, req.path)
   next()
 })
 
@@ -91,7 +97,7 @@ const verifyPassword = (req, res, next) => {
 //place BEFORE all the route handlers
 app.use((req, res, next) => {
   //store the flashed message to be accessible via the response's locals object
-  console.log(req.session)
+  // console.log(req.session)
   res.locals.currentUser = req.user
   res.locals.success = req.flash("success")
   res.locals.error = req.flash("error")

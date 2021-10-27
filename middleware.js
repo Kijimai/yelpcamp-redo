@@ -4,7 +4,7 @@ const Campground = require("./models/campground")
 const Review = require("./models/review")
 
 module.exports.isLoggedIn = (req, res, next) => {
-  console.log(req.user)
+  // console.log(req.user)
   if (!req.isAuthenticated()) {
     //store the requested route to be redirected back to it after logging in
     req.session.returnTo = req.originalUrl
