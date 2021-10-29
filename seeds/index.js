@@ -32,22 +32,17 @@ const seedDB = async () => {
       title: `${places[randomPlace]} ${descriptors[randomDescriptor]}`,
       images: [
         {
-          url: "https://res.cloudinary.com/dh0v8rc4g/image/upload/v1635361210/YelpCamp/g2j1fkqpitufcshq6ixd.jpg",
-          fileName: "YelpCamp/g2j1fkqpitufcshq6ixd",
-        },
-        {
-          url: "https://res.cloudinary.com/dh0v8rc4g/image/upload/v1635361210/YelpCamp/qykrpdor8y7fbwmvsh6i.jpg",
-          fileName: "YelpCamp/qykrpdor8y7fbwmvsh6i",
-        },
-        {
-          url: "https://res.cloudinary.com/dh0v8rc4g/image/upload/v1635361210/YelpCamp/njhivgbl1wqjvnkxfdjz.jpg",
-          fileName: "YelpCamp/njhivgbl1wqjvnkxfdjz",
-        },
-        {
-          url: "https://res.cloudinary.com/dh0v8rc4g/image/upload/v1635361210/YelpCamp/zu6zkmmvksndkvym3ypn.jpg",
-          fileName: "YelpCamp/zu6zkmmvksndkvym3ypn",
+          url: "https://res.cloudinary.com/dh0v8rc4g/image/upload/v1635375376/YelpCamp/o0xtyce2uml0qhwuctbv.jpg",
+          filename: "YelpCamp/o0xtyce2uml0qhwuctbv",
         },
       ],
+      geometry: {
+        type: "Point",
+        coordinates: [
+          cities[random1000].longitude,
+          cities[random1000].latitude,
+        ],
+      },
       description:
         "Lorem ipsum dolor sit amet consectetur adipisicing elit. Velit aliquid culpa temporibus, hic, tenetur quo dolore illum ipsum nihil asperiores nisi explicabo aut! Est labore saepe fugit, quidem reprehenderit iusto!",
       price: randomPrice,
