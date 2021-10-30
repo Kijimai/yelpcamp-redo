@@ -171,8 +171,10 @@
   </div>
 </div>
 
+<!-- Script is strictly only for mapbox functionality with show page -->
 <script>
   const mapToken = "<%- process.env.MAPBOX_TOKEN %>"
+  const title = "<%- campground.title%>"
   const coords = [<%- campground.geometry.coordinates %>]
 </script>
 <script src="/scripts/showMap.js"></script>
