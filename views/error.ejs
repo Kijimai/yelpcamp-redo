@@ -1,10 +1,10 @@
 <%- layout('layouts/boilerplate') -%>
 <div class="alert alert-danger" role="alert">
   <h4 class="alert-heading"><%= err.message %></h4>
-  <p>
-    Something went wrong!
-  </p>
+  <p>Something went wrong!</p>
   <hr />
+  <% if(process.env.NODE_ENV !== "production") { %>
   <p class="mb-0"><%= err.stack %></p>
+  <% } %>
   <a class="btn btn-info mt-5 mb-2" href="/campgrounds">Back to campgrounds</a>
 </div>
