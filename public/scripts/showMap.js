@@ -10,5 +10,7 @@ map.addControl(new mapboxgl.NavigationControl())
 
 new mapboxgl.Marker()
   .setLngLat(coords)
-  .setPopup(new mapboxgl.Popup({ offset: 25 }).setHTML(`<h3>${title}</h3>`))
+  .setPopup(
+    new mapboxgl.Popup({ offset: 25 }).setHTML(`<h3>${campground.title}</h3>`)
+  )
   .addTo(map)

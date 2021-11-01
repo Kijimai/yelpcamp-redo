@@ -46,6 +46,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride("_method"))
 // app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
 app.use(express.static(path.join(__dirname, "public")))
+//prevents basic sql injection on query
 app.use(mongoSanitize())
 
 const sessionConfig = {
