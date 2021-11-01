@@ -20,8 +20,7 @@ const AppError = require("./utils/AppError")
 const campgroundsRouter = require("./routes/campgrounds")
 const reviewsRouter = require("./routes/reviews")
 const usersRouter = require("./routes/users")
-
-
+const mongoSanitize = require("express-mongo-sanitize")
 
 mongoose.connect("mongodb://localhost:27017/yelp-camp", {
   useNewUrlParser: true,
@@ -47,6 +46,7 @@ app.use(express.urlencoded({ extended: true }))
 app.use(methodOverride("_method"))
 // app.use(morgan(":method :url :status :res[content-length] - :response-time ms"))
 app.use(express.static(path.join(__dirname, "public")))
+app.use(mongoSanitize())
 
 const sessionConfig = {
   //Temporary secret
@@ -98,6 +98,7 @@ const verifyPassword = (req, res, next) => {
 app.use((req, res, next) => {
   //store the flashed message to be accessible via the response's locals object
   // console.log(req.session)
+  console.log(req.query)
   res.locals.currentUser = req.user
   res.locals.success = req.flash("success")
   res.locals.error = req.flash("error")

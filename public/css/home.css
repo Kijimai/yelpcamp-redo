@@ -1,0 +1,17 @@
+body {
+  background-image: linear-gradient(rgba(0, 0, 0, 0.3), rgba(0, 0, 0, 0.8)),
+    url("../images/campground-splash1.jpg");
+  background-size: cover;
+  background-repeat: no-repeat;
+  background-position: center;
+}
+
+.home-heading {
+  font-family: "Lobster", sans-serif;
+  font-size: 60px;
+}
+
+.lead {
+  min-width: 60%;
+  max-width: 70%;
+}
