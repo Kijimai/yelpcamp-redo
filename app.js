@@ -22,8 +22,10 @@ const reviewsRouter = require("./routes/reviews")
 const usersRouter = require("./routes/users")
 const mongoSanitize = require("express-mongo-sanitize")
 const helmet = require("helmet")
+const MongoStore = require("connect-mongo")
+const dbURL = process.env.DB_URL || "mongodb://localhost:27017/yelp-camp"
 
-mongoose.connect("mongodb://localhost:27017/yelp-camp", {
+mongoose.connect(dbURL, {
   useNewUrlParser: true,
   useCreateIndex: true,
   useUnifiedTopology: true,
@@ -50,11 +52,27 @@ app.use(express.static(path.join(__dirname, "public")))
 //prevents basic sql injection on query
 app.use(mongoSanitize())
 
+const mySecret = process.env.SESSION_SECRET
+
+const store = MongoStore.create({
+  mongoUrl: dbURL,
+  crypto: {
+    secret: mySecret,
+  },
+  //resave session ONLY AFTER 24 hours of no changes, instead of everytime the page is refreshed
+  touchAfter: 24 * 60 * 60,
+})
+
+store.on("error", function (err) {
+  console.log("Session store error!", err)
+})
+
 const sessionConfig = {
   //rename default session cookie name
+  store,
   name: "session-cookie",
   //Temporary secret
-  secret: "thisismysecret",
+  secret: mySecret,
   resave: false,
   saveUninitialized: true,
   cookie: {
@@ -150,7 +168,6 @@ const verifyPassword = (req, res, next) => {
 app.use((req, res, next) => {
   //store the flashed message to be accessible via the response's locals object
   // console.log(req.session)
-  console.log(req.query)
   res.locals.currentUser = req.user
   res.locals.success = req.flash("success")
   res.locals.error = req.flash("error")
